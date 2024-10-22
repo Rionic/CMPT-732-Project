@@ -9,6 +9,7 @@ assert sys.version_info >= (3, 5)  # make sure we have Python 3.5+
 def main(inputs, output):
     # main logic starts here
     print("loading")
+    print("testing slack integration")
 
 
 if __name__ == '__main__':
