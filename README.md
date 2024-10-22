@@ -6,7 +6,7 @@ The goal of this project is to perform an analysis of stack overflow data consis
 
 ## Data Processing
 
-Rather than processing the entirety of this large dataset in Spark in one go, we will follow a batch-oriented procedure using Lambda and SQS. The idea is to split the data into batches based on the timestamp (16 years of data so roughly 16 batches). Our Lambda function will scan the S3 buckets to identify the batches and then send a message to SQS including metadata (S3 filepath, year, row numbers, etc.) to tell SQS which part of the CSV file belongs to the batch. We will then have a trigger which tells our EMR cluster to process the batch (cleaning, transforming, converting to parquet file) and storing it in an S3 destination bucket.
+Rather than processing the entirety of this large dataset in Spark in one go, we will follow a batch-oriented procedure using Lambda and SQS. The idea is to split the data into batches based on the timestamp (16 years of data so roughly 16 batches). Our Lambda function will scan the S3 buckets to identify the batches and then send a message to SQS including metadata (S3 filepath, year, row numbers, etc.) to tell SQS which part of the CSV file belongs to the batch. We will then have a trigger which tells our EMR cluster to process the batch (cleaning, transforming, converting to parquet file) and store it in an S3 destination bucket.
 
 ## Data Visualization
 
