@@ -1,3 +1,7 @@
+'''
+Calculates a percentile breakdown of the top percentiles users (in intervals of n %) vs the fraction of questions and answers they produce.
+Command line args are question directory, answer directory, output directory and n.
+'''
 import sys
 assert sys.version_info >= (3, 5)
 
@@ -76,21 +80,21 @@ def get_cumsum(df, field, granularity=None):
     df = df.drop('row')
     return df
 
-def main(input_q, input_a, output):
+def main(input_q, input_a, output, gran):
     q_df, a_df = read_q_and_a_data(input_q, input_a)
 
     q_counts_by_user = q_df.groupBy('owner_id').count().withColumnRenamed('count', 'n_q')
     q_sums = q_counts_by_user.groupBy('owner_id').agg(f.sum('n_q').alias('n_q'))
     q_ranking = q_sums.orderBy(f.desc('n_q'))
     q_ranking.cache()
-    q_cumsums = get_cumsum(q_ranking, 'n_q', 1)
+    q_cumsums = get_cumsum(q_ranking, 'n_q', gran)
     q_cumsums.write.parquet(f'{output}/question_user_percentiles')
 
     a_counts_by_user = a_df.groupBy('owner_id').count().withColumnRenamed('count', 'n_a')
     a_sums = a_counts_by_user.groupBy('owner_id').agg(f.sum('n_a').alias('n_a'))
     a_ranking = a_sums.orderBy(f.desc('n_a'))
     a_ranking.cache()
-    a_cumsums = get_cumsum(a_ranking, 'n_a', 1)
+    a_cumsums = get_cumsum(a_ranking, 'n_a', gran)
     a_cumsums.write.parquet(f'{output}/answer_user_percentiles')
 
     # qa_counts_by_user = q_counts_by_user.join(a_counts_by_user, 'owner_id')
@@ -100,8 +104,9 @@ if __name__ == '__main__':
     input_q = sys.argv[1]
     input_a = sys.argv[2]
     output = sys.argv[3]
+    gran = int(sys.argv[4])
     spark = SparkSession.builder.appName('Final Project: User Contribution').getOrCreate()
     assert spark.version >= '3.0'
     spark.sparkContext.setLogLevel('WARN')
     sc = spark.sparkContext
-    main(input_q, input_a, output)
+    main(input_q, input_a, output, gran)
