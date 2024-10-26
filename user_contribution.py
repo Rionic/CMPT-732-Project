@@ -4,6 +4,16 @@ assert sys.version_info >= (3, 5)
 from pyspark.sql import SparkSession, functions as f, types as t, Window
 
 def read_q_and_a_data(input_q, input_a):
+    '''
+    Reads questions and answers csvs from memory as a DataFrame.
+
+    Args:
+        input_q (str): Directory containing question csv(s).
+        input_a (str): Directory containing answer csv(s).
+
+    Returns:
+        (DataFrame, DataFrame): A question and answer DataFrames, respectively. 
+    '''
     q_schema= t.StructType([
         t.StructField('id', t.StringType()),
         t.StructField('owner_id', t.StringType()),
@@ -38,6 +48,17 @@ def read_q_and_a_data(input_q, input_a):
     return q_df, a_df
 
 def get_cumsum(df, field, granularity=None):
+    '''
+    Given a DataFrame which relates owners to a sum of entities, returns a percentile breakdown of the fraction of entities. Ignores rows where owner_id is 'NA'.
+
+    Args:
+        df (DataFrame): DataFrame containing a row called 'owner_id' and a row that corresponds to the field arg.
+        arg (str): Column name of the entity whose fractions will be determined by percentile.
+        granularity (int): The percentage interval between rows in the returned DataFrame. E.g) 5 means create a row for every 5% multiple percentile.
+    
+    Returns:
+        DataFrame containing percentiles of owners and corresponding fraction of field.
+    '''
     total_field = df.groupBy().sum(field).head()[0]
     df = df.where(df['owner_id'] != 'NA')
     total_owners = df.count()
@@ -48,8 +69,7 @@ def get_cumsum(df, field, granularity=None):
         f.row_number().over(wdw).alias('row')
         )
 
-    if granularity:    
-         
+    if granularity:      
         breakpoints = {int (total_owners * i / (100 / granularity)) for i in range(1, 100)}
         df = df.where(f.col('row').isin(breakpoints))
 
