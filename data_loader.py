@@ -23,13 +23,13 @@ def read_data(spark, input_q, input_a, input_t):
         raise ValueError("Tags path is empty")
 
     q_schema = t.StructType([
-        t.StructField('id', t.StringType()),
-        t.StructField('owner_id', t.StringType()),
-        t.StructField('creation_timestamp', t.TimestampType()),
-        t.StructField('close_timestamp', t.TimestampType()),
-        t.StructField('score', t.LongType()),
-        t.StructField('title', t.StringType()),
-        t.StructField('body', t.StringType())
+        t.StructField('Id', t.StringType()),
+        t.StructField('OwnerUserId', t.StringType()),
+        t.StructField('CreationDate', t.TimestampType()),
+        t.StructField('ClosedDate', t.TimestampType()),
+        t.StructField('Score', t.LongType()),
+        t.StructField('Title', t.StringType()),
+        t.StructField('Body', t.StringType())
     ])
 
     q_df = spark.read.csv(input_q,
@@ -39,12 +39,12 @@ def read_data(spark, input_q, input_a, input_t):
                           escape='"',)
 
     a_schema = t.StructType([
-        t.StructField('id', t.StringType()),
-        t.StructField('owner_id', t.StringType()),
-        t.StructField('creation_timestamp', t.TimestampType()),
-        t.StructField('parent_id', t.StringType()),
-        t.StructField('score', t.LongType()),
-        t.StructField('body', t.StringType())
+        t.StructField('Id', t.StringType()),
+        t.StructField('OwnerUserId', t.StringType()),
+        t.StructField('CreationDate', t.TimestampType()),
+        t.StructField('ParentId', t.StringType()),
+        t.StructField('Score', t.LongType()),
+        t.StructField('Body', t.StringType())
     ])
 
     a_df = spark.read.csv(input_a,
@@ -54,8 +54,8 @@ def read_data(spark, input_q, input_a, input_t):
                           escape='"',)
 
     t_schema = t.StructType([
-        t.StructField('id', t.StringType()),
-        t.StructField('tag', t.StringType())
+        t.StructField('Id', t.StringType()),
+        t.StructField('Tag', t.StringType())
     ])
 
     t_df = spark.read.csv(input_t,
