@@ -74,7 +74,7 @@ def get_cumsum(df, field, granularity=None):
         )
 
     if granularity:      
-        breakpoints = {int (total_owners * i / (100 / granularity)) for i in range(1, 100)}
+        breakpoints = [int (total_owners * i / (100 / granularity)) for i in range(1, 100)]
         df = df.where(f.col('row').isin(breakpoints))
 
     df = df.drop('row')
