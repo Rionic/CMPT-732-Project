@@ -1,5 +1,4 @@
 from data_loader import read_data
-from answer_speed import calc_answer_speed
 from pyspark.sql import SparkSession, functions as F
 import sys
 assert sys.version_info >= (3, 5)  # make sure we have Python 3.5+
