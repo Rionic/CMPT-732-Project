@@ -1,5 +1,6 @@
 from data_loader import read_data
-from pyspark.sql import SparkSession
+from answer_speed import calc_answer_speed
+from pyspark.sql import SparkSession, functions as F
 import sys
 assert sys.version_info >= (3, 5)  # make sure we have Python 3.5+
 
@@ -14,6 +15,7 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
     q_df.show(10)
     a_df.show(10)
     t_df.show(10)
+    calc_answer_speed(q_df, a_df, t_df)    
 
 
 if __name__ == '__main__':
