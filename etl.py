@@ -50,7 +50,7 @@ if __name__ == '__main__':
     input_path_tags = sys.argv[3]
     output = sys.argv[4]
     spark = SparkSession.builder.appName(
-        'Final Project: User Engagement').getOrCreate()
+        'Final Project: ETL').getOrCreate()
     assert spark.version >= '3.0'  # make sure we have Spark 3.0+
     spark.sparkContext.setLogLevel('WARN')
     sc = spark.sparkContext
