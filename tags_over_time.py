@@ -34,7 +34,7 @@ if __name__ == '__main__':
     output = sys.argv[1]  # The output directory for Parquet files
     tag = sys.argv[2]     # The specific tag to analyze for monthly usage
     
-    spark = SparkSession.builder.appName('Stack Overflow Analysis').getOrCreate()
+    spark = SparkSession.builder.appName('S').getOrCreate()
     assert spark.version >= '3.0'  # Ensure Spark version is 3.0 or higher
     spark.sparkContext.setLogLevel('WARN')
     sc = spark.sparkContext
