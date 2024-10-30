@@ -1,34 +1,31 @@
-from pyspark.sql import functions as F
+from pyspark.sql import SparkSession, functions as F
+import sys
+assert sys.version_info >= (3, 5)  # make sure we have Python 3.5+
 
-# Speed of Answers Based on Tags: Calculate the time it took for questions with certain
-# tags to receive an answer and analyze the response times based on tags
+def calc_answer_speed(input_t_q, input_a):
 
-# Some questions
-# How many upvotes are required to be considered an answer?
-def calc_answer_speed(q_df, a_df, t_df):
-    # Get top 10 tags
-    top_t = t_df.groupBy('Tag').agg({'Tag': 'count'}).sort(F.desc('count(Tag)')).limit(10)
-    top_t = t_df.join(top_t, 'Tag').select('Id', 'Tag')
+    t_q_df = spark.read.parquet(input_t_q)
+    a_df = spark.read.parquet(input_a)
     
-    # Join top 10 tags with questions df to get t_q df
-    top_t_q = top_t.join(q_df, 'Id').select('Id', 'Tag', 'CreationDate'). \
+    # Rename columns and drop score for the incoming join
+    t_q_df = t_q_df.withColumnRenamed('Id', 'QuestionId'). \
         withColumnRenamed('CreationDate', 'QuestionDate'). \
-        withColumnRenamed('Id', 'QuestionId')
+        drop('Score')
         
     # Join t_q df with answers df to get t_q_a df
-    top_t_q_a = top_t_q.join(a_df, top_t_q['QuestionId'] == a_df['ParentId']). \
+    t_q_a_df = t_q_df.join(a_df, t_q_df['QuestionId'] == a_df['ParentId']). \
         select('QuestionId', 'Tag', 'QuestionDate', 'CreationDate', 'Score'). \
         withColumnRenamed('CreationDate', 'AnswerDate')
         
     # We will not consider responses with score < 3 as an answer
-    top_t_q_a = top_t_q_a.filter('Score > 2')
+    t_q_a_df = t_q_a_df.filter('Score > 2')
     
     # Take the date of the first answer
-    fastest_answer = top_t_q_a.groupBy('QuestionId').agg({'AnswerDate': 'min'}). \
+    fastest_answer = t_q_a_df.groupBy('QuestionId').agg({'AnswerDate': 'min'}). \
         withColumnRenamed('min(AnswerDate)', 'AnswerDate')
     
-    # Join the fastest_answer with top_t_q_a to get the answer
-    answer = fastest_answer.join(top_t_q_a, ['QuestionId', 'AnswerDate'])
+    # Join the fastest_answer with t_q_a_df to get the answer
+    answer = fastest_answer.join(t_q_a_df, ['QuestionId', 'AnswerDate'])
     
     # Drop duplicates in case of a tie
     answer = answer.dropDuplicates(['QuestionId', 'AnswerDate', 'Tag'])
@@ -45,4 +42,17 @@ def calc_answer_speed(q_df, a_df, t_df):
     
     # Display results
     avg_answer_speed.show()
+    
+    # Write Results
+    avg_answer_speed.write.parquet(f'output/answer-speed')
+
+if __name__ == '__main__':
+    input_path_tag_questions = sys.argv[1]
+    input_path_answers = sys.argv[2]
+    spark = SparkSession.builder.appName(
+        'Final Project: ETL').getOrCreate()
+    assert spark.version >= '3.0'  # make sure we have Spark 3.0+
+    spark.sparkContext.setLogLevel('WARN')
+    sc = spark.sparkContext
+    calc_answer_speed(input_path_tag_questions, input_path_answers)
 
