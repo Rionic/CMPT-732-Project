@@ -1,8 +1,9 @@
 from data_loader import read_data
-#from answer_speed import calc_answer_speed
+# from answer_speed import calc_answer_speed
 from pyspark.sql import SparkSession, functions as F
 import sys
 assert sys.version_info >= (3, 5)  # make sure we have Python 3.5+
+
 
 def find_top_tags(t_df):
     # Find the top 10 tags by counting occurrences in tags DataFrame
@@ -19,9 +20,20 @@ def find_top_tags(t_df):
 def join_tags_with_questions(q_df, t_df, top_tags):
     # Filter t_df to include only rows with tags in the top 10
     filtered_t_df = t_df.filter(t_df.Tag.isin(top_tags))
-    
+
     # Join questions with the filtered tags DataFrame
-    joined_df = q_df.join(filtered_t_df, q_df.Id == filtered_t_df.Id, 'left').drop(filtered_t_df.Id)
+    joined_df = q_df.join(filtered_t_df, q_df.Id ==
+                          filtered_t_df.Id, 'left').drop(filtered_t_df.Id)
+    return joined_df
+
+
+def join_tags_with_answers(a_df, t_df, top_tags):
+    # Filter t_df to include only rows with tags in the top 10
+    filtered_t_df = t_df.filter(t_df.Tag.isin(top_tags))
+
+    # Join questions with the filtered tags DataFrame
+    joined_df = a_df.join(filtered_t_df, a_df.ParentId ==
+                          filtered_t_df.Id, 'left').drop(filtered_t_df.Id)
     return joined_df
 
 
@@ -37,11 +49,17 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
 
     # Join tags with questions using only top tags
     questions_with_tags_df = join_tags_with_questions(q_df, t_df, top_tags)
-    questions_with_tags_df = questions_with_tags_df.filter(questions_with_tags_df.Tag.isNotNull())
+    questions_with_tags_df = questions_with_tags_df.filter(
+        questions_with_tags_df.Tag.isNotNull())
+
+    # Join tags with answers using only top tags
+    answers_with_tags_df = join_tags_with_answers(a_df, t_df, top_tags)
+    answers_with_tags_df = answers_with_tags_df.filter(
+        answers_with_tags_df.Tag.isNotNull())
 
     # Write DataFrames to Parquet
     questions_with_tags_df.write.parquet(f"{output}/questions")
-    a_df.write.parquet(f"{output}/answers")
+    answers_with_tags_df.write.parquet(f"{output}/answers")
 
 
 if __name__ == '__main__':
