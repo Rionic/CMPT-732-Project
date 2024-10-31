@@ -26,7 +26,8 @@ def user_engagement(input_t_q, input_t_a):
     # Display results
     engagement_by_tag.show(100)
 
-    engagement_by_tag.write.parquet("output/engagement_by_tag")
+    engagement_by_tag.write.mode('overwrite').parquet(
+        "output/engagement_by_tag")
 
 
 if __name__ == '__main__':
