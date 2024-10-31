@@ -58,8 +58,8 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
         answers_with_tags_df.Tag.isNotNull())
 
     # Write DataFrames to Parquet
-    questions_with_tags_df.write.parquet(f"{output}/questions")
-    answers_with_tags_df.write.parquet(f"{output}/answers")
+    questions_with_tags_df.write.mode('overwrite').parquet(f"{output}/questions")
+    answers_with_tags_df.write.mode('overwrite').parquet(f"{output}/answers")
 
 
 if __name__ == '__main__':
