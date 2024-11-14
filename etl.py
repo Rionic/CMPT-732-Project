@@ -108,11 +108,11 @@ def drop_early_answers(a_df, q_df):
         select('QuestionId', 'QuestionDate')
 
     # Join t_q df with answers df to get t_q_a df
-    t_q_a_df = q_df.join(a_df, q_df['QuestionId'] == a_df['ParentId']). \
+    q_a_df = q_df.join(a_df, q_df['QuestionId'] == a_df['ParentId']). \
         withColumnRenamed('CreationDate', 'AnswerDate')
 
     # Drop rows with an answer posted before the question and select the Id
-    valid_dates = t_q_a_df.filter('QuestionDate < AnswerDate').select('Id')
+    valid_dates = q_a_df.filter('QuestionDate < AnswerDate').select('Id')
 
     # Join valid_dates to a_df so the invalid dates are dropped in a_df
     a_df = a_df.join(valid_dates, 'Id').dropDuplicates()
@@ -148,18 +148,11 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
     questions_with_tags_df = questions_with_tags_df.repartition("Tag")
     answers_with_tags_df = answers_with_tags_df.repartition("Tag")
 
-    # Repartition by owner user ids for questions and answers dataframes
-    q_df = q_df.repartition("OwnerUserId")
-    a_df = a_df.repartition("OwnerUserId")
-
     # Write DataFrames to Parquet
     questions_with_tags_df.write.mode(
         'overwrite').parquet(f"{output}/questions_with_tags")
     answers_with_tags_df.write.mode('overwrite').parquet(
         f"{output}/answers_with_tags")
-
-    q_df.write.mode('overwrite').parquet(f"{output}/questions")
-    a_df.write.mode('overwrite').parquet(f"{output}/answers")
 
 
 if __name__ == '__main__':
