@@ -3,7 +3,7 @@ import sys
 assert sys.version_info >= (3, 5)  # make sure we have Python 3.5+
 
 
-def user_engagement(input_t_q, input_t_a):
+def user_engagement(input_t_q, input_t_a, output):
     t_q_df = spark.read.parquet(input_t_q)
     t_a_df = spark.read.parquet(input_t_a)
 
@@ -27,15 +27,16 @@ def user_engagement(input_t_q, input_t_a):
     engagement_by_tag.show(100)
 
     engagement_by_tag.write.mode('overwrite').parquet(
-        "output/engagement_by_tag")
+        f"{output}/engagement_by_tag")
 
 
 if __name__ == '__main__':
     input_path_tag_questions = sys.argv[1]
     input_path_tag_answers = sys.argv[2]
+    output = sys.argv[3]
     spark = SparkSession.builder.appName(
         'Final Project: User Engagement').getOrCreate()
     assert spark.version >= '3.0'  # make sure we have Spark 3.0+
     spark.sparkContext.setLogLevel('WARN')
     sc = spark.sparkContext
-    user_engagement(input_path_tag_questions, input_path_tag_answers)
+    user_engagement(input_path_tag_questions, input_path_tag_answers, output)

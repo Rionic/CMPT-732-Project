@@ -141,6 +141,10 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
     # Drop rows where the answer was posted before the question
     answers_with_tags_df = drop_early_answers(answers_with_tags_df, questions_with_tags_df)
     
+    # Repartition by tag to make future groupbys more efficient
+    questions_with_tags_df = questions_with_tags_df.repartition("Tag")
+    answers_with_tags_df = answers_with_tags_df.repartition("Tag")
+
     # Write DataFrames to Parquet
     questions_with_tags_df.write.mode(
         'overwrite').parquet(f"{output}/questions")
