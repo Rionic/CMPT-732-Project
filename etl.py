@@ -99,24 +99,26 @@ def join_tags_with_answers(a_df, t_df, top_tags):
                           filtered_t_df.Id, 'left').drop(filtered_t_df.Id)
     return joined_df
 
+
 def drop_early_answers(a_df, q_df):
 
     # Rename and select relevant columns for the incoming join
     q_df = q_df.withColumnRenamed('Id', 'QuestionId'). \
         withColumnRenamed('CreationDate', 'QuestionDate'). \
         select('QuestionId', 'QuestionDate')
-    
+
     # Join t_q df with answers df to get t_q_a df
     t_q_a_df = q_df.join(a_df, q_df['QuestionId'] == a_df['ParentId']). \
         withColumnRenamed('CreationDate', 'AnswerDate')
-    
+
     # Drop rows with an answer posted before the question and select the Id
     valid_dates = t_q_a_df.filter('QuestionDate < AnswerDate').select('Id')
-    
+
     # Join valid_dates to a_df so the invalid dates are dropped in a_df
     a_df = a_df.join(valid_dates, 'Id').dropDuplicates()
-        
+
     return a_df
+
 
 def main(input_path_questions, input_path_answers, input_path_tags, output):
     q_df, a_df, t_df = read_data(
@@ -137,18 +139,27 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
     answers_with_tags_df = join_tags_with_answers(a_df, t_df, top_tags)
     answers_with_tags_df = answers_with_tags_df.filter(
         answers_with_tags_df.Tag.isNotNull())
-    
+
     # Drop rows where the answer was posted before the question
-    answers_with_tags_df = drop_early_answers(answers_with_tags_df, questions_with_tags_df)
-    
+    answers_with_tags_df = drop_early_answers(
+        answers_with_tags_df, questions_with_tags_df)
+
     # Repartition by tag to make future groupbys more efficient
     questions_with_tags_df = questions_with_tags_df.repartition("Tag")
     answers_with_tags_df = answers_with_tags_df.repartition("Tag")
 
+    # Repartition by owner user ids for questions and answers dataframes
+    q_df = q_df.repartition("OwnerUserId")
+    a_df = a_df.repartition("OwnerUserId")
+
     # Write DataFrames to Parquet
     questions_with_tags_df.write.mode(
-        'overwrite').parquet(f"{output}/questions")
-    answers_with_tags_df.write.mode('overwrite').parquet(f"{output}/answers")
+        'overwrite').parquet(f"{output}/questions_with_tags")
+    answers_with_tags_df.write.mode('overwrite').parquet(
+        f"{output}/answers_with_tags")
+
+    q_df.write.mode('overwrite').parquet(f"{output}/questions")
+    a_df.write.mode('overwrite').parquet(f"{output}/answers")
 
 
 if __name__ == '__main__':
