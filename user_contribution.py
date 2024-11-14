@@ -21,7 +21,8 @@ def get_percentiles(df, field):
     field_counts_by_user_with_NA = df.groupBy(
         'OwnerUserId').agg(f.count('OwnerUserID').alias('count'))
     field_counts_by_user_with_NA.cache()
-    total_field = field_counts_by_user_with_NA.groupBy().sum('count').first()['sum(count)']
+    total_field = field_counts_by_user_with_NA.groupBy().sum('count').first()[
+        'sum(count)']
     field_counts_by_user = field_counts_by_user_with_NA.where(
         f.col('OwnerUserId') != 'NA')
     field_counts_by_user_sum = field_counts_by_user.groupBy(
@@ -67,6 +68,7 @@ def main(input_q, input_a,  output):
     q_perc.show()
     q_perc.write.mode('overwrite').parquet(
         f'{output}/question_user_percentiles')
+    a_perc.show()
     a_perc = get_percentiles(a_df, 'answers')
     a_perc.write.mode('overwrite').parquet(f'{output}/answer_user_percentiles')
 

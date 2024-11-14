@@ -25,6 +25,9 @@ def analyze_top_tags_by_year(input, output):
     top_tag_counts_df = tag_counts_df.join(top_tags.select('Tag'), on='Tag')
 
     # Display results
+    top_tag_counts_df.orderBy('year', '# of questions', ascending=False).show()
+
+    # Order results by year and # of questions
     top_tag_counts_df.orderBy('year', '# of questions', ascending=False) \
                      .write.mode('overwrite').parquet(f"{output}/top_tags_by_year")
 
@@ -50,6 +53,9 @@ def analyze_tag_monthly_usage(input, output):
     # Group by tag, year, and month and count occurrences
     monthly_counts_df = top_tags_monthly_df.groupBy(
         'Tag', 'year', 'month').count().withColumnRenamed("count", "# of questions")
+
+    # Display results
+    monthly_counts_df.orderBy('Tag', 'year', 'month').show()
 
     # Order results by tag, year, and month
     monthly_counts_df.orderBy('Tag', 'year', 'month') \

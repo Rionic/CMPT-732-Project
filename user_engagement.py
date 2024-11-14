@@ -24,7 +24,7 @@ def user_engagement(input_t_q, input_t_a, output):
         answer_score_by_tag, "Tag", "outer").na.fill(0)
 
     # Display results
-    engagement_by_tag.show(100)
+    engagement_by_tag.show()
 
     engagement_by_tag.write.mode('overwrite').parquet(
         f"{output}/engagement_by_tag")
