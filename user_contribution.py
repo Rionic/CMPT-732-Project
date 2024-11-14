@@ -68,8 +68,8 @@ def main(input_q, input_a,  output):
     q_perc.show()
     q_perc.write.mode('overwrite').parquet(
         f'{output}/question_user_percentiles')
-    a_perc.show()
     a_perc = get_percentiles(a_df, 'answers')
+    a_perc.show()
     a_perc.write.mode('overwrite').parquet(f'{output}/answer_user_percentiles')
 
 
