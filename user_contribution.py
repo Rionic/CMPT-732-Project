@@ -13,7 +13,7 @@ def get_percentiles(df, field):
 
     Arguments:
         df (DataFrame): DataFrame containing user and field data.
-        field (str): Name of the field that is being mapped against percentile.
+        field (str): Name of the field that is being mapped against percentile (e.g. answers, questions).
 
     Returns:
         A DataFrame containing the percentiles (where defined), fraction of 'field' and number of field per user that near that percentile. 
@@ -21,14 +21,17 @@ def get_percentiles(df, field):
     field_counts_by_user_with_NA = df.groupBy(
         'OwnerUserId').agg(f.count('OwnerUserID').alias('count'))
     field_counts_by_user_with_NA.cache()
-    total_field = field_counts_by_user_with_NA.count()
+    total_field = field_counts_by_user_with_NA.groupBy().sum('count').first()['sum(count)']
     field_counts_by_user = field_counts_by_user_with_NA.where(
         f.col('OwnerUserId') != 'NA')
     field_counts_by_user_sum = field_counts_by_user.groupBy(
         'count').agg(f.sum('count').alias('total'))
     field_counts_by_user_sum.cache()
 
-    # While this Window will coalesce the data to 1 partition, this is okay because there will only be as many rows as the maximum number of field occurences.
+    # While this Window will coalesce the data to 1 partition, this is okay because there
+    # will only be as many rows as the maximum number of field occurences that a single user made.
+    # e.g.) If the user who asked the most questions had asked a total of 10000,
+    # the DataFrame would only contain between [1, 10000] rows.
     wdw = Window().orderBy(f.desc('count')).rowsBetween(
         Window.unboundedPreceding, Window.currentRow)
     field_fracs = field_counts_by_user_sum.select(
