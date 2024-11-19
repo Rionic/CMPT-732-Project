@@ -1,6 +1,4 @@
-# Purpose
-
-## Goal
+## Main Goal
 
 The goal of this project is to perform an analysis of stack overflow data consisting of questions, answers, and tags. We will build a scalable data pipeline that runs in the cloud using Spark on EMR to process data which will be stored in three S3 buckets (answers, questions, tags). After transforming the data in Spark, we will store it in S3 in parquet format, and query directly from S3 using Athena. The end goal is to have a visualization in QuickSight of different insights related to user engagement, popularity, trends, and quality of answers.
 
@@ -14,13 +12,13 @@ Once the processed data is put into the destination S3 bucket in parquet format,
 
 ![Visual Image](./assets/visualizations.png "Visual Image")
 
-# Technologies
+## Initial Design
+
+![Design Image](./assets/diagram.png "Design Image")
+
+## Technologies Used
 
 - S3
 - Spark on EMR
 - Athena
 - QuickSight
-
-# Design
-
-![Design Image](./assets/diagram.png "Design Image")
