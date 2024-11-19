@@ -12,6 +12,8 @@ Rather than processing the entirety of this large dataset in Spark in one go, we
 
 Once the processed data is put into the destination S3 bucket in parquet format, we will use Amazon Athena to directly and efficiently query the data from S3. Our analysis will consist of four major parts: Popularity of tags over time, relationship between question complexity and answer quality, speed of answers based on different tags, and user engagement (upvotes and number of answers per question). For the visualization tool we will use QuickSight which should easily connect to Athena.
 
+![Visual Image](./assets/visualizations.png "Visual Image")
+
 # Technologies
 
 - S3
