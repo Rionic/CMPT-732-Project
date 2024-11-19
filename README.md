@@ -17,8 +17,6 @@ Once the processed data is put into the destination S3 bucket in parquet format,
 # Technologies
 
 - S3
-- Lambda
-- SQS
 - Spark on EMR
 - Athena
 - QuickSight
