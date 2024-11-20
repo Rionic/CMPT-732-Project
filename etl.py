@@ -38,7 +38,7 @@ def read_data(spark, input_q, input_a, input_t):
                           schema=q_schema,
                           header=True,
                           multiLine=True,
-                          escape='"',)
+                          escape='"',).repartition(160)
 
     a_schema = t.StructType([
         t.StructField('Id', t.StringType()),
@@ -124,7 +124,7 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
     q_df, a_df, t_df = read_data(
         spark, input_path_questions, input_path_answers, input_path_tags)
 
-    q_df = q_df.drop('Title', 'Body', 'ClosedDate')
+    q_df = q_df.drop('Title', 'ClosedDate')
     a_df = a_df.drop('Body')
 
     # Find top 10 tags in tags DataFrame

@@ -3,3 +3,9 @@
 /output/
 /parquet_output/
 /cleaned/
+output*
+test_data/
+embeds/
+toxic*
+tmp*
+nlp-embed
