@@ -49,7 +49,7 @@ def get_percentiles(df, field):
     perc_df = spark.createDataFrame(
         percentile_scores, schema=['percentile', 'score'])
     perc_df = perc_df.groupBy('score').agg(
-        f.max('percentile').alias('percentile'))
+        f.min('percentile').alias('percentile'))
     res_df = perc_df.join(
         field_fracs, [perc_df['score'] == field_fracs['count']])
     res_df = res_df.select(
