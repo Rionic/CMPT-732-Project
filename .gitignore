@@ -3,9 +3,4 @@
 /output/
 /parquet_output/
 /cleaned/
-output*
-test_data/
-embeds/
-toxic*
-tmp*
-nlp-embed
+/tag_prediction_model/

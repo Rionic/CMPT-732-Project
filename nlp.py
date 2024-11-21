@@ -1,27 +1,22 @@
-from pyspark.sql import SparkSession, functions as f, types as t, Window
-import sys
-
-import sparknlp.pretrained
+import sys, shutil
 assert sys.version_info >= (3, 5)
-import sparknlp
 from pyspark.ml import Pipeline
-from pyspark.sql import SparkSession, functions as f, types as t, Window
-
+from pyspark.sql import functions as f, types as t
+import sparknlp
+import sparknlp.pretrained
 from sparknlp.annotator import *
 from sparknlp.common import *
 from sparknlp.base import *
 
-def main(ques):
+def main(ques, model_dir):
     q_df = spark.read.parquet(ques)
     data = q_df.groupBy('Id').agg(
         f.first('Body').alias('body'),
         f.collect_list('Tag').alias('tags')
     )
-    data = data.withColumn("tags", f.col("tags").cast(t.ArrayType(t.StringType(), True)))
+    data = data.withColumn("tags", f.col("tags").cast(t.ArrayType(t.StringType(), True))).repartition(160)
     train, test = data.randomSplit([0.8, 0.2])
-    test = test.repartition(160)
-    train = train.repartition(160)
-    train.cache()
+    test.cache()
 
     document = DocumentAssembler()\
         .setInputCol("body")\
@@ -32,9 +27,10 @@ def main(ques):
         .setInputCols(["document"])\
         .setOutputCol("sentence_embeddings")
     
+    tmp_embedded_test_dir = './embedded-test-data'
     test_pipeline = Pipeline(stages=[document, embeddings])
     tmp_test = test_pipeline.fit(test).transform(test)
-    tmp_test.write.mode('overwrite').parquet('./nlp-embed/test')
+    tmp_test.write.mode('overwrite').parquet(tmp_embedded_test_dir)
 
     multiClassifier = MultiClassifierDLApproach()\
         .setInputCols("sentence_embeddings")\
@@ -48,7 +44,7 @@ def main(ques):
         .setEnableOutputLogs(True)\
         .setValidationSplit(0.1)\
         .setEvaluationLogExtended(True)\
-        .setTestDataset("./nlp-embed/test")
+        .setTestDataset(tmp_embedded_test_dir)
 
     pipeline = Pipeline(
         stages = [
@@ -56,17 +52,18 @@ def main(ques):
             embeddings,
             multiClassifier
         ])
-    pipelineModel = pipeline.fit(train)
-    pipelineModel.stages[-1].write().overwrite().save('tmp_multi_classifierDL_model')
-    # print('preds')
+    model = pipeline.fit(train)
+    model.stages[-1].write().overwrite().save(model_dir)
     # preds = pipelineModel.transform(test)
     # preds = preds.select('tags','body',"predicted_tags.result")
     # preds.write.mode('overwrite').parquet("output-nlp/test")
-    print('done')
+    shutil.rmtree(tmp_embedded_test_dir)
+    print('NLP Complete.')
 
 if __name__ == '__main__':
     ques = sys.argv[1]
-    spark = sparknlp.start(gpu=False)
+    model_dir = sys.argv[2]
+    spark = sparknlp.start(gpu=True)
     spark.sparkContext.setLogLevel('WARN')
     sc = spark.sparkContext
-    main(ques)
+    main(ques, model_dir)
