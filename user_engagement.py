@@ -8,20 +8,24 @@ def user_engagement(input_t_q, input_t_a, output):
     t_a_df = spark.read.parquet(input_t_a)
 
     # Calculate total and average question score per tag
-    question_score_by_tag = t_q_df.groupBy("Tag").agg(F.sum("Score").alias(
-        "total_question_score"), F.avg("Score").alias("average_question_score"))
+    avg_question_score_by_tag = t_q_df.groupBy("Tag").agg(
+        F.avg("Score").alias("avg_question_score"))
+
+    # Calculate total and average answer score per tag
+    avg_answer_score_by_tag = t_a_df.groupBy("Tag").agg(
+        F.avg("Score").alias("avg_answer_score"))
+
+    # Calculate the total number of questions per tag
+    question_count_by_tag = t_q_df.groupBy("Tag").agg(
+        F.count("Id").alias("total_questions"))
 
     # Calculate the total number of answers per tag
     answer_count_by_tag = t_a_df.groupBy("Tag").agg(
         F.count("ParentId").alias("total_answers"))
 
-    # Calculate total and average answer score per tag
-    answer_score_by_tag = t_a_df.groupBy("Tag").agg(F.sum("Score").alias(
-        "total_answer_score"), F.avg("Score").alias("avg_answer_score"))
-
-    # Join the three DataFrames on "Tag" to have a single DataFrame with all metrics
-    engagement_by_tag = question_score_by_tag.join(answer_count_by_tag, "Tag", "outer").join(
-        answer_score_by_tag, "Tag", "outer").na.fill(0)
+    # Join the four DataFrames on "Tag" to have a single DataFrame with all metrics
+    engagement_by_tag = avg_question_score_by_tag.join(avg_answer_score_by_tag, "Tag", "outer").join(
+        question_count_by_tag, "Tag", "outer").join(answer_count_by_tag, "Tag", "outer").na.fill(0)
 
     # Display results
     engagement_by_tag.show()
