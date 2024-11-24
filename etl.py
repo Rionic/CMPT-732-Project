@@ -124,7 +124,7 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
     q_df, a_df, t_df = read_data(
         spark, input_path_questions, input_path_answers, input_path_tags)
 
-    q_df = q_df.drop('Title', 'Body' 'ClosedDate')
+    q_df = q_df.drop('Title', 'Body', 'ClosedDate')
     a_df = a_df.drop('Body')
     nlp_df = q_df.drop('Title', 'ClosedDate')
 
