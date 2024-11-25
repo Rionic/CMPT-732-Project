@@ -1,3 +1,5 @@
+# To run this file, use python3, not spark-submit.
+
 import sys, shutil
 assert sys.version_info >= (3, 5)
 from pyspark.ml import Pipeline
@@ -63,7 +65,7 @@ def main(ques, model_dir):
 if __name__ == '__main__':
     ques = sys.argv[1]
     model_dir = sys.argv[2]
-    spark = sparknlp.start(gpu=True)
+    spark = sparknlp.start(gpu=False)
     spark.sparkContext.setLogLevel('WARN')
     sc = spark.sparkContext
     main(ques, model_dir)
