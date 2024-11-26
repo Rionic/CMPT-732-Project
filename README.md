@@ -14,7 +14,7 @@ Once the processed data is put into the destination S3 bucket in parquet format,
 
 ## Initial Design
 
-![Design](./assets/diagram.png "Design")
+![Design](./assets/design.png "Design")
 
 ## Technologies Used
 
