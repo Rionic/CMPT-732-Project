@@ -47,7 +47,7 @@ In order to view our regression plots for the monthly/yearly usage analysis, ple
   - `python3 plot_yearly_usage.py`
 
 In order to run our NLP process, please do the following:
-  - Pending...
+  - `python3 nlp.py cleaned/nlp [name of directory to save tag prediction model]` 
 
 ## Inspecting our Data in Athena
 Using the credentials I setup with your help in the labs, you can also run basic `SELECT` queries in the Athena Query Editor to see what our data looks like for each analysis. Please follow the following steps:

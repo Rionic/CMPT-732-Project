@@ -1,5 +1,3 @@
-# To run this file, use python3, not spark-submit.
-
 from sparknlp.base import *
 from sparknlp.common import *
 from sparknlp.annotator import *
