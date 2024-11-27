@@ -47,4 +47,4 @@ In order to view our regression plots for the monthly/yearly usage analysis, ple
   - `python3 plot_yearly_usage.py`
 
 In order to run our NLP process, please do the following:
-  - Pending...
+  - `python3 nlp.py cleaned/nlp [name of directory to save tag prediction model]` 
