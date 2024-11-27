@@ -1,14 +1,16 @@
 # To run this file, use python3, not spark-submit.
 
-import sys, shutil
-assert sys.version_info >= (3, 5)
-from pyspark.ml import Pipeline
-from pyspark.sql import functions as f, types as t
-import sparknlp
-import sparknlp.pretrained
-from sparknlp.annotator import *
-from sparknlp.common import *
 from sparknlp.base import *
+from sparknlp.common import *
+from sparknlp.annotator import *
+import sparknlp.pretrained
+import sparknlp
+from pyspark.sql import functions as f, types as t
+from pyspark.ml import Pipeline
+import sys
+import shutil
+assert sys.version_info >= (3, 5)
+
 
 def main(ques, model_dir):
     q_df = spark.read.parquet(ques)
@@ -16,7 +18,8 @@ def main(ques, model_dir):
         f.first('Body').alias('body'),
         f.collect_list('Tag').alias('tags')
     )
-    data = data.withColumn("tags", f.col("tags").cast(t.ArrayType(t.StringType(), True))).repartition(160)
+    data = data.withColumn("tags", f.col("tags").cast(
+        t.ArrayType(t.StringType(), True))).repartition(160)
     train, test = data.randomSplit([0.8, 0.2])
     test.cache()
 
@@ -28,7 +31,7 @@ def main(ques, model_dir):
     embeddings = UniversalSentenceEncoder.pretrained() \
         .setInputCols(["document"])\
         .setOutputCol("sentence_embeddings")
-    
+
     tmp_embedded_test_dir = './embedded-test-data'
     test_pipeline = Pipeline(stages=[document, embeddings])
     tmp_test = test_pipeline.fit(test).transform(test)
@@ -49,7 +52,7 @@ def main(ques, model_dir):
         .setTestDataset(tmp_embedded_test_dir)
 
     pipeline = Pipeline(
-        stages = [
+        stages=[
             document,
             embeddings,
             multiClassifier
@@ -61,6 +64,7 @@ def main(ques, model_dir):
     # preds.write.mode('overwrite').parquet("output-nlp/test")
     shutil.rmtree(tmp_embedded_test_dir)
     print('NLP Complete.')
+
 
 if __name__ == '__main__':
     ques = sys.argv[1]
