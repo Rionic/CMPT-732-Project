@@ -1,6 +1,5 @@
 from pyspark.sql import SparkSession, functions as F
 import matplotlib.pyplot as plt
-import pandas as pd
 
 # Define slopes and intercepts for each tag
 coefficients_by_year = {
@@ -15,7 +14,8 @@ coefficients_by_year = {
     "php": (2859.76, -5741964.07),
     "python": (2042.76, -4102704.82),
 }
-spark = SparkSession.builder.appName("Yearly Tag Usage Regression").getOrCreate()
+spark = SparkSession.builder.appName(
+    "Yearly Tag Usage Regression").getOrCreate()
 
 # Load the data
 input_path = "output/top_tags_by_year"
@@ -32,7 +32,8 @@ data_pd.rename(
 )
 
 # Aggregate data by averaging 'Average # Of Questions' for each year and tag
-averaged_data_by_year = data_pd.groupby(['Tag', 'year'], as_index=False)['# of questions'].mean()
+averaged_data_by_year = data_pd.groupby(['Tag', 'year'], as_index=False)[
+    '# of questions'].mean()
 
 # Plot the data
 plt.figure(figsize=(12, 8))

@@ -1,11 +1,11 @@
 from pyspark.sql import SparkSession, functions as F
 import matplotlib.pyplot as plt
-import numpy as np
 
 # Initialize Spark session
-spark = SparkSession.builder.appName("Monthly Tag Usage Regression").getOrCreate()
+spark = SparkSession.builder.appName(
+    "Monthly Tag Usage Regression").getOrCreate()
 
-#Load Data
+# Load Data
 input_path = "output/monthly_tag_usage"
 data_df = spark.read.parquet(input_path)
 
@@ -24,21 +24,25 @@ coefficients = {
 }
 
 # Add regression predictions
+
+
 def calculate_regression(tag, month):
     slope, intercept = coefficients.get(tag.lower(), (0, 0))
     return slope * month + intercept
 
+
 calculate_regression_udf = F.udf(calculate_regression, "double")
 
 data_df = data_df.withColumn(
-    "Regression", 
+    "Regression",
     calculate_regression_udf(F.col("Tag"), F.col("month"))
 )
 
 data_pd = data_df.toPandas()
 
 # Aggregate data
-averaged_data = data_pd.groupby(['Tag', 'month'], as_index=False)['# of questions'].mean()
+averaged_data = data_pd.groupby(['Tag', 'month'], as_index=False)[
+    '# of questions'].mean()
 
 # Plot the data
 plt.figure(figsize=(12, 8))
