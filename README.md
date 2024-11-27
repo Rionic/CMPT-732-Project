@@ -5,10 +5,14 @@ The goal of this project is to perform an analysis of stack overflow data consis
 ## Technologies Used
 
 - S3
-- Spark on EMR
+- Spark
+- EMR
 - Athena
 - QuickSight
 - IAM
+- Matplotlib
+- Pandas
+- Git
 
 ## Data Pipeline
 
