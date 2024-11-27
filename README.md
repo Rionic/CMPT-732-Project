@@ -37,6 +37,7 @@ In order to run this project on your local machine, please ensure that you have 
   - pyspark
   - matplotlib
   - sparknlp
+  - pandas
 
 The following should help you run the ETL process along with the four analyses:
   - `spark-submit etl.py ./data/questions ./data/answers ./data/tags cleaned` (make sure you run this script first!)
