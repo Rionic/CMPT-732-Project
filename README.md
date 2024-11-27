@@ -8,6 +8,7 @@ The goal of this project is to perform an analysis of stack overflow data consis
 - Spark on EMR
 - Athena
 - QuickSight
+- IAM
 
 ## Data Pipeline
 
