@@ -38,7 +38,7 @@ def read_data(spark, input_q, input_a, input_t):
                           schema=q_schema,
                           header=True,
                           multiLine=True,
-                          escape='"',)
+                          escape='"',).repartition(160)
 
     a_schema = t.StructType([
         t.StructField('Id', t.StringType()),
@@ -121,11 +121,12 @@ def drop_early_answers(a_df, q_df):
 
 
 def main(input_path_questions, input_path_answers, input_path_tags, output):
-    q_df, a_df, t_df = read_data(
+    init_q_df, a_df, t_df = read_data(
         spark, input_path_questions, input_path_answers, input_path_tags)
 
-    q_df = q_df.drop('Title', 'Body', 'ClosedDate')
+    q_df = init_q_df.drop('Title', 'Body', 'ClosedDate')
     a_df = a_df.drop('Body')
+    nlp_df = init_q_df.drop('Title', 'ClosedDate')
 
     # Find top 10 tags in tags DataFrame
     top_tags = find_top_tags(t_df)
@@ -140,6 +141,11 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
     answers_with_tags_df = answers_with_tags_df.filter(
         answers_with_tags_df.Tag.isNotNull())
 
+    # Join tags with nlp dataframe using only top tags
+    nlp_with_tags_df = join_tags_with_questions(nlp_df, t_df, top_tags)
+    nlp_with_tags_df = nlp_with_tags_df.filter(
+        nlp_with_tags_df.Tag.isNotNull())
+
     # Drop rows where the answer was posted before the question
     answers_with_tags_df = drop_early_answers(
         answers_with_tags_df, questions_with_tags_df)
@@ -147,12 +153,14 @@ def main(input_path_questions, input_path_answers, input_path_tags, output):
     # Repartition by tag to make future groupbys more efficient
     questions_with_tags_df = questions_with_tags_df.repartition("Tag")
     answers_with_tags_df = answers_with_tags_df.repartition("Tag")
+    nlp_with_tags_df = nlp_with_tags_df.select('id', 'body', 'tag').repartition("Tag")
 
     # Write DataFrames to Parquet
     questions_with_tags_df.write.mode(
         'overwrite').parquet(f"{output}/questions")
     answers_with_tags_df.write.mode('overwrite').parquet(
         f"{output}/answers")
+    nlp_with_tags_df.write.mode('overwrite').parquet(f"{output}/nlp")
 
 
 if __name__ == '__main__':
