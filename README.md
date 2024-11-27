@@ -12,6 +12,7 @@ The goal of this project is to perform an analysis of stack overflow data consis
 - IAM
 - Matplotlib
 - Pandas
+- SparkNLP
 - Git
 
 ## Data Pipeline
