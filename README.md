@@ -27,6 +27,8 @@ Once the processed data is put into the destination S3 buckets in parquet format
 
 ![Dashboard](./assets/dashboard.png "Dashboard")
 
+To view this dashboard and play around with it in more detail, please visit the following URL: https://us-west-2.quicksight.aws.amazon.com/sn/dashboards/6a24e2bf-2fcd-4183-833f-9acdf2326174/views/65a2e0a1-d0d4-4c6f-93dd-6d3e4062b22a?directory_alias=chhokara
+
 ## Running the project locally
 Please start by downloading our dataset at the following link: https://drive.google.com/file/d/1VPRlAVGXJJA8UHRmzTW3iK1BP7d12-CL/view?usp=sharing
 Once this is done, please unzip the file and place it in the root of the project directory. 
@@ -57,13 +59,14 @@ Using the credentials I setup with your help in the labs, you can also run basic
   - Go to Athena main page
   - In Athena make sure the 'editor' tab is selected
   - In the query editor run the following 6 queries to inspect each of the 6 tables we produced:
-  - `SELECT * FROM answer_speed`
-  - `SELECT * FROM answer_user_percentiles`
-  - `SELECT * FROM question_user_percentiles`
-  - `SELECT * FROM monthly_tag_usage`
-  - `SELECT * FROM top_tags_by_year`
-  - `SELECT * FROM engagement_by_tag`
+    - `SELECT * FROM answer_speed`
+    - `SELECT * FROM answer_user_percentiles`
+    - `SELECT * FROM question_user_percentiles`
+    - `SELECT * FROM monthly_tag_usage`
+    - `SELECT * FROM top_tags_by_year`
+    - `SELECT * FROM engagement_by_tag`
   - After running one of these queries you will see something like this:
+    
 ![Athena](./assets/athena.png "Athena")
   - On the left hand side you can click on the "plus" sign beside each table to see the schema of the associated table
   - Next to the tables is the query editor where you will enter the `SELECT` query
