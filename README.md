@@ -47,8 +47,8 @@ The following should help you run the ETL process along with the four analyses:
   - `spark-submit user_contribution.py ./cleaned/questions ./cleaned/answers user-contribution`
 
 In order to view our regression plots for the monthly/yearly usage analysis, please do the following:
-  - `python3 plot_monthly_usage.py`
-  - `python3 plot_yearly_usage.py`
+  - `spark-submit plot_monthly_usage.py ./tags_over_time`
+  - `spark-submit plot_yearly_usage.py ./tags_over_time`
 
 In order to run our NLP process, please do the following:
   - `python3 nlp.py ./cleaned/nlp [name of directory to save tag prediction model]` 
