@@ -1,4 +1,4 @@
-# Stack Overflow Data Analysis Pipeline
+# Stack Overflow NLP & Data Analysis Pipeline
 
 A scalable big data pipeline for analyzing Stack Overflow questions, answers, and tags using Apache Spark on AWS EMR. This project processes large-scale data to generate insights on user engagement, technology trends, answer response times, and power user contributions.
 
